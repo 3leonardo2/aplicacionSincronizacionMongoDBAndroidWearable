@@ -24,22 +24,31 @@ class HealthServicesManager(context: Context) {
         val dataType = DataType.HEART_RATE_BPM
         val callback = object : MeasureCallback {
             override fun onAvailabilityChanged(dataType: DeltaDataType<*, *>, availability: Availability) {
-                Log.d("HealthManager", "BPM Availability: $availability")
+                Log.d("HealthManager", "BPM Availability (HealthServices): $availability")
             }
 
             override fun onDataReceived(data: DataPointContainer) {
                 val heartRates = data.getData(dataType)
+                Log.d("HealthManager", "BPM Data Received (HealthServices): $heartRates")
                 if (heartRates.isNotEmpty()) {
-                    trySend(heartRates.last().value.toInt())
+                    val bpm = heartRates.last().value.toInt()
+                    Log.d("HealthManager", "BPM Value (HealthServices): $bpm")
+                    trySend(bpm)
                 }
             }
         }
         
         // También registrar listener tradicional como fallback para el emulador
         val hrSensor = sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE)
+        Log.d("HealthManager", "HR Sensor (Fallback): ${hrSensor?.name ?: "No detectado"}")
+        
         val hrListener = object : SensorEventListener {
             override fun onSensorChanged(event: SensorEvent?) {
-                event?.let { trySend(it.values[0].toInt()) }
+                event?.let { 
+                    val bpm = it.values[0].toInt()
+                    Log.d("HealthManager", "BPM Value (SensorManager Fallback): $bpm")
+                    trySend(bpm) 
+                }
             }
             override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
         }

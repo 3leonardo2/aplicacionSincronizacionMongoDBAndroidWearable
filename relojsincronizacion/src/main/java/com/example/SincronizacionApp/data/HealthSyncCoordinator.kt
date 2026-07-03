@@ -32,6 +32,7 @@ class HealthSyncCoordinator(
         // 1. Recolectar datos de sensores y actualizar el estado
         scope.launch { 
             sensorManager.heartRateMeasureFlow().collectLatest { bpm ->
+                Log.d("SyncCoordinator", "Recibido BPM en Flow: $bpm")
                 _currentHealthState.value = _currentHealthState.value.copy(bpm = bpm)
             } 
         }

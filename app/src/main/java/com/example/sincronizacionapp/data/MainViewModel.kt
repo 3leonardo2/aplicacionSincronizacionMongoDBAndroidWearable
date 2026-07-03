@@ -33,6 +33,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         wearDataManager.register()
+        viewModelScope.launch {
+            healthData.collect { data ->
+                Log.d("MainViewModel", "Datos recibidos del reloj: $data")
+            }
+        }
     }
 
     fun syncFromWatch() {
