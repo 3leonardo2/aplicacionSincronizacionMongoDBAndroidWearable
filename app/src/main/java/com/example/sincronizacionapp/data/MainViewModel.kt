@@ -8,8 +8,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.sincronizacionapp.R
 import com.example.sincronizacionapp.api.HealthApiService
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -18,6 +20,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val apiService = HealthApiService.create()
     
     val healthData: StateFlow<Map<String, Any>> = wearDataManager.healthData
+
+    private val _lastCloudRecord = MutableStateFlow<Map<String, Any>?>(null)
+    val lastCloudRecord: StateFlow<Map<String, Any>?> = _lastCloudRecord.asStateFlow()
 
     private val _uiEvents = MutableSharedFlow<UiEvent>()
     val uiEvents: SharedFlow<UiEvent> = _uiEvents
@@ -33,6 +38,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun syncFromWatch() {
         viewModelScope.launch {
             wearDataManager.requestSync()
+        }
+    }
+
+    fun fetchLastRecord() {
+        viewModelScope.launch {
+            try {
+                val response = apiService.getHealthHistory()
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    val data = body?.get("data") as? List<*>
+                    if (!data.isNullOrEmpty()) {
+                        _lastCloudRecord.value = data[0] as? Map<String, Any>
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Error al obtener historial", e)
+            }
         }
     }
 

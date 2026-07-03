@@ -1,15 +1,19 @@
+# Android/JetBrains IDE
 *.iml
 .gradle
 /local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
+/.idea/
 .DS_Store
 /build
 /captures
 .externalNativeBuild
 .cxx
-local.properties
+
+# Specific Gradle files
+.kotlin
+.navigation
+capture.png
+
+# Node.js (if you didn't have a separate .gitignore in /backend)
+# backend/node_modules/
+# backend/.env

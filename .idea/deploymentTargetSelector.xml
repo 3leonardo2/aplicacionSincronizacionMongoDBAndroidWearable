@@ -4,7 +4,7 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-06-26T06:31:46.951246550Z">
+        <DropdownSelection timestamp="2026-07-03T03:14:17.344683333Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="PhysicalDevice" identifier="serial=F3R7N19216004008" />
@@ -15,7 +15,7 @@
       </SelectionState>
       <SelectionState runConfigName="relojsincronizacion">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-06-24T22:11:55.561999815Z">
+        <DropdownSelection timestamp="2026-07-03T03:14:12.378389569Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="PhysicalDevice" identifier="serial=F3R7N19216004008" />
