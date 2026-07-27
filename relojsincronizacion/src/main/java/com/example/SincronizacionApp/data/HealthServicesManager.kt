@@ -83,6 +83,50 @@ class HealthServicesManager(context: Context) {
     fun humidityMeasureFlow(): Flow<Float> = createSensorFlow(Sensor.TYPE_RELATIVE_HUMIDITY)
     fun lightMeasureFlow(): Flow<Float> = createSensorFlow(Sensor.TYPE_LIGHT)
 
+    // Flow para pasos (Steps)
+    fun stepsMeasureFlow(): Flow<Int> = callbackFlow {
+        val sensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
+        val listener = object : SensorEventListener {
+            private var initialSteps = -1
+            override fun onSensorChanged(event: SensorEvent?) {
+                event?.let {
+                    val currentSteps = it.values[0].toInt()
+                    if (initialSteps == -1) initialSteps = currentSteps
+                    trySend(currentSteps - initialSteps)
+                }
+            }
+            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+        }
+        if (sensor != null) {
+            sensorManager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_UI)
+        }
+        awaitClose { sensorManager.unregisterListener(listener) }
+    }
+
+    // Flow para calorías (Simulado basado en pasos si no hay sensor específico)
+    fun caloriesMeasureFlow(): Flow<Int> = callbackFlow {
+        val sensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
+        val listener = object : SensorEventListener {
+            private var initialSteps = -1
+            override fun onSensorChanged(event: SensorEvent?) {
+                event?.let {
+                    val currentSteps = it.values[0].toInt()
+                    if (initialSteps == -1) initialSteps = currentSteps
+                    val steps = currentSteps - initialSteps
+                    // Aproximación simple: 0.04 calorías por paso
+                    trySend((steps * 0.04f).toInt())
+                }
+            }
+            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+        }
+        if (sensor != null) {
+            sensorManager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_UI)
+        } else {
+            trySend(0)
+        }
+        awaitClose { sensorManager.unregisterListener(listener) }
+    }
+
     fun spo2MeasureFlow(): Flow<Float> = callbackFlow {
         trySend(98f)
         awaitClose { }

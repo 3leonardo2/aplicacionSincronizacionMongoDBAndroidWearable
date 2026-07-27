@@ -15,10 +15,10 @@
       </SelectionState>
       <SelectionState runConfigName="relojsincronizacion">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-07-03T14:26:13.606698459Z">
+        <DropdownSelection timestamp="2026-07-23T01:43:13.105854364Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=F3R7N19216004008" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=/home/spionsor/.android/avd/Wear_OS_XL_Round.avd" />
             </handle>
           </Target>
         </DropdownSelection>

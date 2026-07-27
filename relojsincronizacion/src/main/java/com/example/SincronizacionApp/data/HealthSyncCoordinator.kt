@@ -12,11 +12,19 @@ import kotlinx.coroutines.launch
 
 data class HealthState(
     val bpm: Int = 0,
+    val steps: Int = 0,
+    val calories: Int = 0,
     val pressure: Float = 0f,
     val temp: Float = 0f,
     val humidity: Float = 0f,
     val light: Float = 0f,
-    val spo2: Float = 98f
+    val spo2: Float = 98f,
+    
+    // Datos de Nutrición (vienen del móvil)
+    val caloriesConsumed: Int = 0,
+    val caloriesGoal: Int = 2000,
+    val nextMealName: String = "Pendiente",
+    val nextMealTime: String = "--:--"
 )
 
 class HealthSyncCoordinator(
@@ -34,6 +42,16 @@ class HealthSyncCoordinator(
             sensorManager.heartRateMeasureFlow().collectLatest { bpm ->
                 Log.d("SyncCoordinator", "Recibido BPM en Flow: $bpm")
                 _currentHealthState.value = _currentHealthState.value.copy(bpm = bpm)
+            } 
+        }
+        scope.launch { 
+            sensorManager.stepsMeasureFlow().collectLatest { steps ->
+                _currentHealthState.value = _currentHealthState.value.copy(steps = steps)
+            } 
+        }
+        scope.launch { 
+            sensorManager.caloriesMeasureFlow().collectLatest { calories ->
+                _currentHealthState.value = _currentHealthState.value.copy(calories = calories)
             } 
         }
         scope.launch { 
@@ -82,6 +100,16 @@ class HealthSyncCoordinator(
 
         dataManager.onSyncRequestReceived = {
             syncNow()
+        }
+
+        dataManager.onNutritionDataReceived = { dataMap ->
+            _currentHealthState.value = _currentHealthState.value.copy(
+                caloriesConsumed = dataMap.getInt(WearConstants.KEY_CALORIES_CONSUMED, _currentHealthState.value.caloriesConsumed),
+                caloriesGoal = dataMap.getInt(WearConstants.KEY_CALORIES_GOAL, _currentHealthState.value.caloriesGoal),
+                nextMealName = dataMap.getString(WearConstants.KEY_NEXT_MEAL_NAME, _currentHealthState.value.nextMealName),
+                nextMealTime = dataMap.getString(WearConstants.KEY_NEXT_MEAL_TIME, _currentHealthState.value.nextMealTime)
+            )
+            Log.d("SyncCoordinator", "Nutrición actualizada: ${dataMap.getInt(WearConstants.KEY_CALORIES_CONSUMED)} kcal")
         }
     }
 

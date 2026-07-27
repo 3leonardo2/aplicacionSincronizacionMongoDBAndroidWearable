@@ -6,19 +6,33 @@ import com.google.android.gms.wearable.*
 import kotlinx.coroutines.tasks.await
 import java.util.Date
 
-class WearDataManager(context: Context) : MessageClient.OnMessageReceivedListener {
+class WearDataManager(context: Context) : 
+    MessageClient.OnMessageReceivedListener,
+    DataClient.OnDataChangedListener {
 
     private val dataClient = Wearable.getDataClient(context)
     private val messageClient = Wearable.getMessageClient(context)
     
     var onSyncRequestReceived: (() -> Unit)? = null
+    var onNutritionDataReceived: ((DataMap) -> Unit)? = null
 
     fun register() {
         messageClient.addListener(this)
+        dataClient.addListener(this)
     }
 
     fun unregister() {
         messageClient.removeListener(this)
+        dataClient.removeListener(this)
+    }
+
+    override fun onDataChanged(dataEvents: DataEventBuffer) {
+        dataEvents.forEach { event ->
+            if (event.type == DataEvent.TYPE_CHANGED && event.dataItem.uri.path == WearConstants.NUTRITION_PATH) {
+                val dataMap = DataMapItem.fromDataItem(event.dataItem).dataMap
+                onNutritionDataReceived?.invoke(dataMap)
+            }
+        }
     }
 
     override fun onMessageReceived(messageEvent: MessageEvent) {
